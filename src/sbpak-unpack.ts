@@ -11,7 +11,7 @@ import * as path from 'path'
 
 import * as app from 'commander'
 
-import { SBAsset6, StreamPipeline, ExpandingFile } from 'js-starbound'
+import { ExpandingFile, SBAsset6, StreamPipeline } from 'js-starbound'
 
 const pkg = require('../package.json')
 

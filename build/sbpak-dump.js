@@ -14,18 +14,28 @@ const js_starbound_1 = require("js-starbound");
 const pkg = require('../package.json');
 app
     .version(pkg.version, '-v, --version')
-    .arguments('<pak> <file>')
-    .action(async (pakPath, _filename) => {
+    .arguments('<pak> <file> [destination]')
+    .action(async (pakPath, _filename, _destination) => {
     const target = path.resolve(process.cwd(), pakPath);
     const pak = new js_starbound_1.SBAsset6(target);
     const result = await pak.load();
+    const destination = _destination ? path.resolve(process.cwd(), _destination) : undefined;
     const filename = _filename.replace(/^\/\//, '/');
     if (!result.files.includes(filename)) {
         throw new Error(`The file ${filename} does not exist in the specified pak.`);
     }
-    const decoder = new string_decoder_1.StringDecoder('utf8');
-    const content = decoder.end(await pak.files.getFile(filename));
-    console.log(content);
+    const content = await pak.files.getFile(filename);
+    if (destination) {
+        const sfile = new js_starbound_1.StreamPipeline();
+        const sbuf = new js_starbound_1.ExpandingFile(destination);
+        await sbuf.open();
+        await sfile.load(sbuf);
+        await sfile.pump(content);
+    }
+    else {
+        const decoder = new string_decoder_1.StringDecoder('utf8');
+        console.log(decoder.end(content));
+    }
 })
     .parse(process.argv);
 //# sourceMappingURL=sbpak-dump.js.map

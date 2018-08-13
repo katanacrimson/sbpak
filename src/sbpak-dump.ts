@@ -11,17 +11,18 @@ import { StringDecoder } from 'string_decoder'
 
 import * as app from 'commander'
 
-import { SBAsset6 } from 'js-starbound'
+import { ExpandingFile, SBAsset6, StreamPipeline } from 'js-starbound'
 
 const pkg = require('../package.json')
 
 app
   .version(pkg.version, '-v, --version')
-  .arguments('<pak> <file>')
-  .action(async (pakPath: string, _filename: string) => {
+  .arguments('<pak> <file> [destination]')
+  .action(async (pakPath: string, _filename: string, _destination?: string) => {
     const target = path.resolve(process.cwd(), pakPath)
     const pak = new SBAsset6(target)
     const result = await pak.load()
+    const destination = _destination ? path.resolve(process.cwd(), _destination) : undefined
 
     const filename = _filename.replace(/^\/\//, '/')
 
@@ -29,9 +30,20 @@ app
       throw new Error(`The file ${filename} does not exist in the specified pak.`)
     }
 
-    const decoder = new StringDecoder('utf8')
-    const content = decoder.end(await pak.files.getFile(filename))
+    const content = await pak.files.getFile(filename)
 
-    console.log(content)
+    if (destination) {
+      const sfile = new StreamPipeline()
+
+      const sbuf = new ExpandingFile(destination)
+      await sbuf.open()
+      await sfile.load(sbuf)
+
+      await sfile.pump(content)
+    } else {
+      const decoder = new StringDecoder('utf8')
+      console.log(decoder.end(content))
+    }
+
   })
   .parse(process.argv)
