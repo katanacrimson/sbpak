@@ -10,7 +10,7 @@
     "prepublishOnly": "npm run build"
   },
   "bin": {
-    "sbpak": "build/sbpak.js"
+    "sbpak": "./build/sbpak.js"
   },
   "repository": {
     "type": "git",
