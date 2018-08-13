@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 //
 // sbpak - A javascript utility to pack and unpack Starbound pak files.
 //
