@@ -22,9 +22,8 @@ app
     const pak = new SBAsset6(target)
     const result = await pak.load()
 
-    console.log(target)
     result.files.forEach((file) => {
-      console.log(` - ${file}`)
+      console.log(file)
     })
   })
   .parse(process.argv)

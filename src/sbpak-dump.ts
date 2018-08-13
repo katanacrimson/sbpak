@@ -16,12 +16,19 @@ const pkg = require('../package.json')
 
 app
   .version(pkg.version, '-v, --version')
-  .arguments('<pak>')
-  .action(async (pakPath: string) => {
+  .arguments('<pak> <file>')
+  .action(async (pakPath: string, _filename: string) => {
     const target = path.resolve(process.cwd(), pakPath)
     const pak = new SBAsset6(target)
     const result = await pak.load()
 
-    console.dir(result.metadata)
+    const filename = _filename.replace(/^\/\//, '/')
+
+    if (!result.files.includes(filename)) {
+      throw new Error(`The file ${filename} does not exist in the specified pak.`)
+    }
+
+    const content = await pak.files.getFile(filename)
+    console.log(content.toString())
   })
   .parse(process.argv)

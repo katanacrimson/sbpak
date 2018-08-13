@@ -13,14 +13,17 @@ const js_starbound_1 = require("js-starbound");
 const pkg = require('../package.json');
 app
     .version(pkg.version, '-v, --version')
-    .arguments('<pak>')
-    .action(async (pakPath) => {
+    .arguments('<pak> <file>')
+    .action(async (pakPath, _filename) => {
     const target = path.resolve(process.cwd(), pakPath);
     const pak = new js_starbound_1.SBAsset6(target);
     const result = await pak.load();
-    result.files.forEach((file) => {
-        console.log(file);
-    });
+    const filename = _filename.replace(/^\/\//, '/');
+    if (!result.files.includes(filename)) {
+        throw new Error(`The file ${filename} does not exist in the specified pak.`);
+    }
+    const content = await pak.files.getFile(filename);
+    console.log(content.toString());
 })
     .parse(process.argv);
-//# sourceMappingURL=sbpak-files.js.map
+//# sourceMappingURL=sbpak-dump.js.map

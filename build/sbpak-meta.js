@@ -18,7 +18,6 @@ app
     const target = path.resolve(process.cwd(), pakPath);
     const pak = new js_starbound_1.SBAsset6(target);
     const result = await pak.load();
-    console.log(target);
     console.dir(result.metadata);
 })
     .parse(process.argv);

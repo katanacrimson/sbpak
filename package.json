@@ -9,7 +9,7 @@
     "qc": "npm run build && npm run style",
     "prepublishOnly": "npm run build"
   },
-  "files": {
+  "bin": {
     "sbpak": "build/sbpak.js"
   },
   "repository": {

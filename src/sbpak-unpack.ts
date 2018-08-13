@@ -23,11 +23,19 @@ app
     const destination = path.resolve(process.cwd(), _destination)
 
     const pak = new SBAsset6(target)
-
     const result = await pak.load()
 
-    console.log(target)
     const sfile = new StreamPipeline()
+
+    const metaTarget = path.join(destination, '/_metadata')
+
+    const sbuf = new ExpandingFile(metaTarget)
+    await sbuf.open()
+    await sfile.load(sbuf)
+
+    await sfile.pump(Buffer.from(JSON.stringify(result.metadata, null, 2)))
+    console.log(`extracted ${metaTarget}`)
+
     for (const file of result.files) {
       const fileTarget = path.join(destination, file)
       mkdirp.sync(path.dirname(fileTarget))
@@ -40,14 +48,6 @@ app
       console.log(`extracted ${fileTarget}`)
     }
 
-    // now create the metadata file too
-    const metaTarget = path.join(destination, '/_metadata')
-
-    const sbuf = new ExpandingFile(metaTarget)
-    await sbuf.open()
-    await sfile.load(sbuf)
-
-    await sfile.pump(Buffer.from(JSON.stringify(result.metadata, null, 2)))
-    console.log(`extracted ${metaTarget}`)
+    console.log('done!')
   })
   .parse(process.argv)

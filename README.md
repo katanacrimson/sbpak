@@ -1,39 +1,24 @@
-# js-starbound
+# sbpak
 
-## A collection of node.js libraries for working with Starbound files.
+## A standalone Starbound pak file multitool.
 
-js-starbound is a metapackage to help easily work with several types of Starbound files.
+sbpak is a command-line utility for interacting with Starbound pak files.
 
-Currently provided are the following libraries:
+For help, use the command `sbpak -h`
 
-* [SBON](https://github.com/damianb/SBON)
-* [SBVJ01](https://github.com/damianb/SBVJ01)
-* [SBAsset6](https://github.com/damianb/SBAsset6)
-* [ByteAccordion](https://github.com/damianb/ByteAccordion) (dependency of SBON, SBVJ01, SBAsset6)
+### Usage
 
-### How do I install this library?
+Currently available are the following commands:
 
-Ensure you have at least node.js v7.6+, and then...
+`sbpak files $pak` - which dumps out the list of files available in the pak file at **$pak**
+`sbpak meta $pak` - which dumps out the metadata for the pak file at **$pak**
+`sbpak pack $dir $pak` - create a new pak at **$pak** out of the files in **$dir**
+`sbpak unpack $pak $dir` - export all files and metadata contained in the pak at **$pak** to **$dir**
+`sbpak dump $pak $file` - dump the contents of the file at path **$file** within the pak at **$pak**
 
-``` bash
-$ yarn add js-starbound
-```
+**WARNING**: Git for Windows users should be warned that MSys attempts to perform some path auto-translation that will backfire when using the `sbpak dump` command.
+This is *not* an sbpak bug.  To work around this issue, try prepending an extra slash to the path specified as indicated in this [StackOverflow answer](https://stackoverflow.com/a/14189687/783103).
 
-### How do I use this library?
+### License
 
-In brief:
-
-``` js
-'use strict'
-const { SBAsset6, SBVJ01, SBON } = require('js-starbound')
-
-// and use SBAsset6, SBVJ01, SBON...etc. all as is documented for each individual module
-
-```
-
-Documentation is available here:
-
-* [SBON documentation](https://damianb.github.io/SBON)
-* [SBVJ01 documentation](https://damianb.github.io/SBVJ01)
-* [SBAsset6 documentation](https://damianb.github.io/SBAsset6/)
-* [ByteAccordion documentation](https://damianb.github.io/ByteAccordion)
+Licensed under the MIT license.  See ./LICENSE for the license text.
