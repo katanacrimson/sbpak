@@ -20,50 +20,68 @@ app
   .version(pkg.version, '-v, --version')
   .arguments('<directory> <pak>')
   .action(async (_source: string, pakPath: string) => {
-    const source = path.resolve(process.cwd(), _source)
-    const target = path.resolve(process.cwd(), pakPath)
-
-    const pak = new SBAsset6(target)
-
-    console.log(`creating pak ${target}`)
-    console.log(`using files from ${source}`)
-    const files = await readdir(source)
-
-    const metadataFile = files.find((filename) => {
-      return ['_metadata', '.metadata'].includes(path.basename(filename))
-    })
-    let metadata: any = null
-
-    if (metadataFile) {
+    try {
+      const source = path.resolve(process.cwd(), _source)
       try {
-        metadata = await fs.readJson(metadataFile)
+        await fs.access(source, fs.constants.R_OK)
       } catch (err) {
-        throw new Error(`Failed to read and parse metadata file ${metadataFile}`)
+        throw new Error('The specified source directory does not exist.')
       }
 
-      console.log('setting metadata')
-      pak.metadata = metadata
-    }
+      const target = path.resolve(process.cwd(), pakPath)
+      try {
+        await fs.access(path.dirname(target), fs.constants.R_OK)
+      } catch (err) {
+        throw new Error('The specified pak file parent directory does not exist.')
+      }
 
-    files
-      .filter((filename) => {
-        return !(['_metadata', '.metadata'].includes(path.basename(filename)))
+      const pak = new SBAsset6(target)
+
+      console.log(`creating pak ${target}`)
+      console.log(`using files from ${source}`)
+      const files = await readdir(source)
+
+      const metadataFile = files.find((filename) => {
+        return ['_metadata', '.metadata'].includes(path.basename(filename))
       })
-      .forEach((filename) => {
-        let pakPath = filename.substring(source.length)
-        if (process.platform === 'win32') {
-          pakPath = pakPath.replace(/\\/g, '/')
+      let metadata: any = null
+
+      if (metadataFile) {
+        try {
+          metadata = await fs.readJson(metadataFile)
+        } catch (err) {
+          throw new Error(`Failed to read and parse metadata file ${metadataFile}`)
         }
-        pak.files.setFile(pakPath, {
-          source: {
-            path: filename
+
+        console.log('setting metadata')
+        pak.metadata = metadata
+      }
+
+      const promises = files
+        .filter((filename) => {
+          return !(['_metadata', '.metadata'].includes(path.basename(filename)))
+        })
+        .map(async (filename) => {
+          let pakPath = filename.substring(source.length)
+          if (process.platform === 'win32') {
+            pakPath = pakPath.replace(/\\/g, '/')
           }
+          await pak.files.setFile(pakPath, {
+            source: {
+              path: filename
+            }
+          })
+
+          console.log(`added ${pakPath}`)
         })
 
-        console.log(`added ${pakPath}`)
-      })
+      await Promise.all(promises)
+      await pak.save()
 
-    await pak.save()
-    console.log('done!')
+      console.log('done!')
+    } catch (err) {
+      console.error(err)
+      process.exit(1)
+    }
   })
   .parse(process.argv)

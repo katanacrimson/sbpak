@@ -6,6 +6,7 @@
 // @url <https://github.com/damianb/sbpak>
 //
 
+import * as fs from 'fs-extra'
 import * as path from 'path'
 
 import * as app from 'commander'
@@ -18,10 +19,21 @@ app
   .version(pkg.version, '-v, --version')
   .arguments('<pak>')
   .action(async (pakPath: string) => {
-    const target = path.resolve(process.cwd(), pakPath)
-    const pak = new SBAsset6(target)
-    const result = await pak.load()
+    try {
+      const target = path.resolve(process.cwd(), pakPath)
+      try {
+        await fs.access(target, fs.constants.R_OK)
+      } catch (err) {
+        throw new Error('The specified pak file does not exist.')
+      }
 
-    console.dir(result.metadata)
+      const pak = new SBAsset6(target)
+      const result = await pak.load()
+
+      console.dir(result.metadata)
+    } catch (err) {
+      console.error(err)
+      process.exit(1)
+    }
   })
   .parse(process.argv)

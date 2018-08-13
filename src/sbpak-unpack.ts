@@ -6,6 +6,7 @@
 // @url <https://github.com/damianb/sbpak>
 //
 
+import * as fs from 'fs-extra'
 import * as mkdirp from 'mkdirp'
 import * as path from 'path'
 
@@ -19,35 +20,51 @@ app
   .version(pkg.version, '-v, --version')
   .arguments('<pak> <directory>')
   .action(async (pakPath: string, _destination: string) => {
-    const target = path.resolve(process.cwd(), pakPath)
-    const destination = path.resolve(process.cwd(), _destination)
+    try {
+      const target = path.resolve(process.cwd(), pakPath)
+      try {
+        await fs.access(target, fs.constants.R_OK)
+      } catch (err) {
+        throw new Error('The specified pak file does not exist.')
+      }
 
-    const pak = new SBAsset6(target)
-    const result = await pak.load()
+      const destination = path.resolve(process.cwd(), _destination)
+      try {
+        await fs.access(path.dirname(destination), fs.constants.R_OK)
+      } catch (err) {
+        throw new Error(`The specified destination does not exist.`)
+      }
 
-    const sfile = new StreamPipeline()
+      const pak = new SBAsset6(target)
+      const result = await pak.load()
 
-    const metaTarget = path.join(destination, '/_metadata')
+      const sfile = new StreamPipeline()
 
-    const sbuf = new ExpandingFile(metaTarget)
-    await sbuf.open()
-    await sfile.load(sbuf)
+      const metaTarget = path.join(destination, '/_metadata')
 
-    await sfile.pump(Buffer.from(JSON.stringify(result.metadata, null, 2)))
-    console.log(`extracted ${metaTarget}`)
-
-    for (const file of result.files) {
-      const fileTarget = path.join(destination, file)
-      mkdirp.sync(path.dirname(fileTarget))
-
-      const sbuf = new ExpandingFile(fileTarget)
+      const sbuf = new ExpandingFile(metaTarget)
       await sbuf.open()
       await sfile.load(sbuf)
 
-      await sfile.pump(await pak.files.getFile(file))
-      console.log(`extracted ${fileTarget}`)
-    }
+      await sfile.pump(Buffer.from(JSON.stringify(result.metadata, null, 2)))
+      console.log(`extracted ${metaTarget}`)
 
-    console.log('done!')
+      for (const file of result.files) {
+        const fileTarget = path.join(destination, file)
+        mkdirp.sync(path.dirname(fileTarget))
+
+        const sbuf = new ExpandingFile(fileTarget)
+        await sbuf.open()
+        await sfile.load(sbuf)
+
+        await sfile.pump(await pak.files.getFile(file))
+        console.log(`extracted ${fileTarget}`)
+      }
+
+      console.log('done!')
+    } catch (err) {
+      console.error(err)
+      process.exit(1)
+    }
   })
   .parse(process.argv)
