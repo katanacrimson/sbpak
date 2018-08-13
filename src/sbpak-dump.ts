@@ -7,6 +7,7 @@
 //
 
 import * as path from 'path'
+import { StringDecoder } from 'string_decoder'
 
 import * as app from 'commander'
 
@@ -28,7 +29,9 @@ app
       throw new Error(`The file ${filename} does not exist in the specified pak.`)
     }
 
-    const content = await pak.files.getFile(filename)
-    console.log(content.toString())
+    const decoder = new StringDecoder('utf8')
+    const content = decoder.end(await pak.files.getFile(filename))
+
+    console.log(content)
   })
   .parse(process.argv)

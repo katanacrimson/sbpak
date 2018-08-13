@@ -8,6 +8,7 @@
 //
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
+const string_decoder_1 = require("string_decoder");
 const app = require("commander");
 const js_starbound_1 = require("js-starbound");
 const pkg = require('../package.json');
@@ -22,8 +23,9 @@ app
     if (!result.files.includes(filename)) {
         throw new Error(`The file ${filename} does not exist in the specified pak.`);
     }
-    const content = await pak.files.getFile(filename);
-    console.log(content.toString());
+    const decoder = new string_decoder_1.StringDecoder('utf8');
+    const content = decoder.end(await pak.files.getFile(filename));
+    console.log(content);
 })
     .parse(process.argv);
 //# sourceMappingURL=sbpak-dump.js.map
