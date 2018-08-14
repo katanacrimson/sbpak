@@ -9,7 +9,7 @@ app
     isDefault: true
 })
     .command('meta <pak>', 'get the metadata for a pak file')
-    .command('dump <pak> <file>', 'dump out the contents of a file within a pak')
+    .command('dump <pak> <file> [destination]', 'dump out the contents of a single file within a pak')
     .command('pack <directory> <pak>', 'create a new pak file')
     .command('unpack <pak> <directory>', 'unpack a pak file in the given directory')
     .parse(process.argv);
