@@ -62,6 +62,7 @@ app
         await sfile.load(sbuf)
 
         await sfile.pump(await pak.files.getFile(file))
+        await sbuf.close()
         console.log(`extracted ${fileTarget}`)
       }
 
