@@ -43,11 +43,17 @@ app
         console.log(`extracted ${metaTarget}`);
         for (const file of result.files) {
             const fileTarget = path.join(destination, file);
-            mkdirp.sync(path.dirname(fileTarget));
+            try {
+                await fs.access(path.dirname(fileTarget), fs.constants.R_OK);
+            }
+            catch (err) {
+                mkdirp.sync(path.dirname(fileTarget));
+            }
             const sbuf = new js_starbound_1.ExpandingFile(fileTarget);
             await sbuf.open();
             await sfile.load(sbuf);
             await sfile.pump(await pak.files.getFile(file));
+            await sbuf.close();
             console.log(`extracted ${fileTarget}`);
         }
         console.log('done!');
