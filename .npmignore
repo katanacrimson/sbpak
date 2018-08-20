@@ -1,5 +1,4 @@
 .yarn_packages/*
-docs/*
 node_modules/*
 src/*
 .directory
