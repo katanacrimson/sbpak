@@ -51,7 +51,11 @@ app
 
       for (const file of result.files) {
         const fileTarget = path.join(destination, file)
-        mkdirp.sync(path.dirname(fileTarget))
+        try {
+          await fs.access(path.dirname(fileTarget), fs.constants.R_OK)
+        } catch (err) {
+          mkdirp.sync(path.dirname(fileTarget))
+        }
 
         const sbuf = new ExpandingFile(fileTarget)
         await sbuf.open()
