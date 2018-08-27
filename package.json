@@ -1,6 +1,6 @@
 {
   "name": "sbpak",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "sbpak - A javascript utility to pack and unpack Starbound pak files.",
   "scripts": {
     "style": "tslint ./src/*.ts -p ./tsconfig.json",
