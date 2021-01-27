@@ -7,12 +7,12 @@
 // @url <https://github.com/damianb/sbpak>
 //
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs-extra");
+const fs = require("fs");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const app = require("commander");
 const js_starbound_1 = require("js-starbound");
-const pkg = require('../package.json');
+const pkg = JSON.parse(fs.readFileSync('../package.json').toString());
 app
     .version(pkg.version, '-v, --version')
     .arguments('<pak> <directory>')
@@ -20,17 +20,17 @@ app
     try {
         const target = path.resolve(process.cwd(), pakPath);
         try {
-            await fs.access(target, fs.constants.R_OK);
+            await fs.promises.access(target, fs.constants.R_OK);
         }
         catch (err) {
             throw new Error('The specified pak file does not exist.');
         }
         const destination = path.resolve(process.cwd(), _destination);
         try {
-            await fs.access(path.dirname(destination), fs.constants.R_OK);
+            await fs.promises.access(path.dirname(destination), fs.constants.R_OK);
         }
         catch (err) {
-            throw new Error(`The specified destination does not exist.`);
+            throw new Error('The specified destination does not exist.');
         }
         const pak = new js_starbound_1.SBAsset6(target);
         const result = await pak.load();
@@ -44,7 +44,7 @@ app
         for (const file of result.files) {
             const fileTarget = path.join(destination, file);
             try {
-                await fs.access(path.dirname(fileTarget), fs.constants.R_OK);
+                await fs.promises.access(path.dirname(fileTarget), fs.constants.R_OK);
             }
             catch (err) {
                 mkdirp.sync(path.dirname(fileTarget));

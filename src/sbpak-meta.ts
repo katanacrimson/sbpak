@@ -6,14 +6,14 @@
 // @url <https://github.com/damianb/sbpak>
 //
 
-import * as fs from 'fs-extra'
+import * as fs from 'fs'
 import * as path from 'path'
 
 import * as app from 'commander'
 
 import { SBAsset6 } from 'js-starbound'
 
-const pkg = require('../package.json')
+const pkg = JSON.parse(fs.readFileSync('../package.json').toString())
 
 app
   .version(pkg.version, '-v, --version')
@@ -22,7 +22,7 @@ app
     try {
       const target = path.resolve(process.cwd(), pakPath)
       try {
-        await fs.access(target, fs.constants.R_OK)
+        await fs.promises.access(target, fs.constants.R_OK)
       } catch (err) {
         throw new Error('The specified pak file does not exist.')
       }

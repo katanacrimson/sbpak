@@ -7,12 +7,12 @@
 // @url <https://github.com/damianb/sbpak>
 //
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs-extra");
+const fs = require("fs");
 const path = require("path");
 const readdir = require("recursive-readdir");
 const app = require("commander");
 const js_starbound_1 = require("js-starbound");
-const pkg = require('../package.json');
+const pkg = JSON.parse(fs.readFileSync('../package.json').toString());
 app
     .version(pkg.version, '-v, --version')
     .arguments('<directory> <pak>')
@@ -20,14 +20,14 @@ app
     try {
         const source = path.resolve(process.cwd(), _source);
         try {
-            await fs.access(source, fs.constants.R_OK);
+            await fs.promises.access(source, fs.constants.R_OK);
         }
         catch (err) {
             throw new Error('The specified source directory does not exist.');
         }
         const target = path.resolve(process.cwd(), pakPath);
         try {
-            await fs.access(path.dirname(target), fs.constants.R_OK);
+            await fs.promises.access(path.dirname(target), fs.constants.R_OK);
         }
         catch (err) {
             throw new Error('The specified pak file parent directory does not exist.');
@@ -40,9 +40,9 @@ app
             return ['_metadata', '.metadata'].includes(path.basename(filename));
         });
         let metadata = null;
-        if (metadataFile) {
+        if (metadataFile !== undefined) {
             try {
-                metadata = await fs.readJson(metadataFile);
+                metadata = JSON.parse(await (await fs.promises.readFile(metadataFile)).toString());
             }
             catch (err) {
                 throw new Error(`Failed to read and parse metadata file ${metadataFile}`);

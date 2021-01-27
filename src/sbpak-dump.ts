@@ -6,7 +6,7 @@
 // @url <https://github.com/damianb/sbpak>
 //
 
-import * as fs from 'fs-extra'
+import * as fs from 'fs'
 import * as path from 'path'
 import { StringDecoder } from 'string_decoder'
 
@@ -14,7 +14,7 @@ import * as app from 'commander'
 
 import { ExpandingFile, SBAsset6, StreamPipeline } from 'js-starbound'
 
-const pkg = require('../package.json')
+const pkg = JSON.parse(fs.readFileSync('../package.json').toString())
 
 app
   .version(pkg.version, '-v, --version')
@@ -23,14 +23,14 @@ app
     try {
       const target = path.resolve(process.cwd(), pakPath)
       try {
-        await fs.access(target, fs.constants.R_OK)
+        await fs.promises.access(target, fs.constants.R_OK)
       } catch (err) {
         throw new Error('The specified pak file does not exist.')
       }
 
       const pak = new SBAsset6(target)
       const result = await pak.load()
-      const destination = _destination ? path.resolve(process.cwd(), _destination) : undefined
+      const destination = _destination !== undefined ? path.resolve(process.cwd(), _destination) : undefined
 
       const filename = _filename.replace(/^\/\//, '/')
 
@@ -40,11 +40,11 @@ app
 
       const content = await pak.files.getFile(filename)
 
-      if (destination) {
+      if (destination !== undefined) {
         try {
-          await fs.access(path.dirname(destination), fs.constants.R_OK)
+          await fs.promises.access(path.dirname(destination), fs.constants.R_OK)
         } catch (err) {
-          throw new Error(`The specified destination does not exist.`)
+          throw new Error('The specified destination does not exist.')
         }
 
         const sfile = new StreamPipeline()

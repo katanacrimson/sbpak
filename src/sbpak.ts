@@ -9,8 +9,9 @@
 //
 
 import * as app from 'commander'
+import * as fs from 'fs'
 
-const pkg = require('../package.json')
+const pkg = JSON.parse(fs.readFileSync('../package.json').toString())
 
 app
   .version(pkg.version, '-v, --version')

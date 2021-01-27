@@ -7,11 +7,11 @@
 // @url <https://github.com/damianb/sbpak>
 //
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs-extra");
+const fs = require("fs");
 const path = require("path");
 const app = require("commander");
 const js_starbound_1 = require("js-starbound");
-const pkg = require('../package.json');
+const pkg = JSON.parse(fs.readFileSync('../package.json').toString());
 app
     .version(pkg.version, '-v, --version')
     .arguments('<pak>')
@@ -19,7 +19,7 @@ app
     try {
         const target = path.resolve(process.cwd(), pakPath);
         try {
-            await fs.access(target, fs.constants.R_OK);
+            await fs.promises.access(target, fs.constants.R_OK);
         }
         catch (err) {
             throw new Error('The specified pak file does not exist.');
