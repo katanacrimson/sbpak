@@ -10,7 +10,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const app = require("commander");
 const fs = require("fs");
-const pkg = JSON.parse(fs.readFileSync('../package.json').toString());
+const path = require("path");
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')).toString());
 app
     .version(pkg.version, '-v, --version')
     .command('files <pak>', 'get the list of all files in a pak', {

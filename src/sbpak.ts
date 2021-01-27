@@ -10,8 +10,9 @@
 
 import * as app from 'commander'
 import * as fs from 'fs'
+import * as path from 'path'
 
-const pkg = JSON.parse(fs.readFileSync('../package.json').toString())
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')).toString())
 
 app
   .version(pkg.version, '-v, --version')

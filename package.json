@@ -1,6 +1,6 @@
 {
   "name": "sbpak",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "sbpak - A javascript utility to pack and unpack Starbound pak files.",
   "scripts": {
     "style": "eslint ./src/*.ts",

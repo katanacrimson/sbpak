@@ -12,7 +12,7 @@ const path = require("path");
 const string_decoder_1 = require("string_decoder");
 const app = require("commander");
 const js_starbound_1 = require("js-starbound");
-const pkg = JSON.parse(fs.readFileSync('../package.json').toString());
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')).toString());
 app
     .version(pkg.version, '-v, --version')
     .arguments('<pak> <file> [destination]')
